@@ -5,6 +5,7 @@ import {
   type FindOneAndUpdateOptions,
   type ModifyResult,
   MongoClient,
+  ObjectId,
   type UpdateFilter,
 } from 'mongodb';
 
@@ -51,13 +52,28 @@ describe('createUpdateIdentifierPersona mongo', () => {
             update: UpdateFilter<any>,
             options: FindOneAndUpdateOptions,
           ): Promise<ModifyResult> => {
-            const result = await collection2.findOneAndUpdate(filter, update, options);
+            const result = await collection2.findOneAndUpdate(filter, update, {
+              ...options,
+              includeResultMetadata: true, // Ensure we get the old format for testing
+            });
 
+            // Simulate a race condition where another process created the identifier
+            // but our findOneAndUpdate doesn't return it (simulating timing issue)
             return {
-              ...result,
               lastErrorObject: {
+                updatedExisting: true, // Someone else created it
+                n: 1,
                 upserted: undefined,
               },
+              value: {
+                _id: new ObjectId(),
+                ifi: filter.ifi || {},
+                organisation: new ObjectId(),
+                locked: true,
+                lockedAt: new Date(),
+                // persona is undefined (not set yet)
+              },
+              ok: 1,
             };
           },
         }, Object.getPrototypeOf(collection2));

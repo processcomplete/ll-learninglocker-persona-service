@@ -1,5 +1,5 @@
 import { has, isPlainObject } from 'lodash';
-import { MongoError, ObjectId } from 'mongodb';
+import { MongoServerError, ObjectId } from 'mongodb';
 import Conflict from '../errors/Conflict';
 import type CreateIdentifierOptions from '../repoFactory/options/CreateIdentifierOptions';
 import type CreateIdentifierResult from '../repoFactory/results/CreateIdentifierResult';
@@ -49,7 +49,7 @@ export default (config: Config) => {
 
       return { identifier };
     } catch (err) {
-      if (err instanceof MongoError && err.code === DUPLICATE_KEY) {
+      if (err instanceof MongoServerError && err.code === DUPLICATE_KEY) {
         throw new Conflict();
       }
       /* istanbul ignore next */

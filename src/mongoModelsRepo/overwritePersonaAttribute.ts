@@ -1,4 +1,4 @@
-import { MongoError, ObjectId, ReturnDocument } from 'mongodb';
+import { MongoServerError, ObjectId, ReturnDocument } from 'mongodb';
 import type OverwritePersonaAttributeOptions from '../repoFactory/options/OverwritePersonaAttributeOptions';
 import type OverwritePersonaAttributeResult from '../repoFactory/results/OverwritePersonaAttributeResult';
 import type Config from './Config';
@@ -32,9 +32,10 @@ const overwritePersonaAttribute = (config: Config) => {
       {
         returnDocument: ReturnDocument.AFTER,
         upsert: true,
+        includeResultMetadata: true, // Maintains backward compatibility with MongoDB driver 4.x behavior
       });
 
-      if (result.value == null) {
+      if (result == null || result.value == null) {
         /* istanbul ignore next */
         throw new Error('No persona attribute found');
       }
@@ -53,7 +54,7 @@ const overwritePersonaAttribute = (config: Config) => {
     } catch (err) {
       // if we catch a duplicate error, we can be sure to find it next time round
       /* istanbul ignore if */
-      if (err instanceof MongoError && err.code === DUPLICATE_KEY) {
+      if (err instanceof MongoServerError && err.code === DUPLICATE_KEY) {
         return await overwritePersonaAttribute(config)({
           key,
           organisation,

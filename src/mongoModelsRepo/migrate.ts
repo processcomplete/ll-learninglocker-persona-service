@@ -14,22 +14,22 @@ export default (config: Config) => {
 
     await personasCollection.createIndex({
       organisation: 1,
-    }, { background: true });
+    });
 
     await identCollection.createIndex({
       organisation: 1,
       persona: 1,
-    }, { background: true });
+    });
 
     await identCollection.createIndex({
       organisation: 1,
       ifi: 1,
-    }, { unique: true, background: true });
+    }, { unique: true });
 
     await attributesCollection.createIndex({
       organisation: 1,
       personaId: 1,
       key: 1,
-    }, { background: true });
+    });
   };
 };

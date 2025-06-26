@@ -26,9 +26,10 @@ export default (config: Config) => {
     {
       returnDocument: ReturnDocument.AFTER,
       upsert,
+      includeResultMetadata: true, // Maintains backward compatibility with MongoDB driver 4.x behavior
     });
 
-    if (result.value === null || result.value === undefined) {
+    if (result == null || result.value === null || result.value === undefined) {
       throw new NoModelWithId('personas', personaId);
     }
 
