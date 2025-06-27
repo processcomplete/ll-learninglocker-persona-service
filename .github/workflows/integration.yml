@@ -18,7 +18,7 @@ jobs:
 
     services:
       mongodb:
-        image: mongo:4.4
+        image: mongo:8.0
         env:
           MONGO_INITDB_DATABASE: test
           ALLOW_EMPTY_PASSWORD: yes
@@ -45,10 +45,3 @@ jobs:
 
       - name: Linting Code
         run: npm run lint
-
-      - name: Semantic Release
-        if: github.ref == 'refs/heads/master'
-        run: npm run semantic-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.SEMANTIC_RELEASE_NPM_TOKEN }}

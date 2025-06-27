@@ -1,5 +1,5 @@
 import NoModel from 'jscommons/dist/errors/NoModel';
-import { MongoError, ReturnDocument } from 'mongodb';
+import { MongoServerError, ReturnDocument } from 'mongodb';
 import type Identifier from '../../models/Identifier';
 import type OverwriteIdentifierResult from '../../repoFactory/results/OverwriteIdentifierResult';
 import type Config from '../Config';
@@ -27,14 +27,15 @@ const createOrUpdateIdentifier = (config: Config) => async ({
     const opResult = await collection.findOneAndUpdate(filter, update, {
       returnDocument: ReturnDocument.AFTER, // Ensures the updated document is returned.
       upsert, // Creates the identifier when it's not found.
+      includeResultMetadata: true, // Maintains backward compatibility with MongoDB driver 4.x behavior
     });
 
     // upsert === false and no model has been found.
-    if (opResult.lastErrorObject?.updatedExisting === false && opResult.lastErrorObject.n === 0) {
+    if (opResult != null && opResult.lastErrorObject?.updatedExisting === false && opResult.lastErrorObject.n === 0) {
       throw new NoModel('Persona Identifier');
     }
 
-    if (opResult.value == null) {
+    if (opResult == null || opResult.value == null) {
       /* istanbul ignore next */
       throw new Error('Can not update identifier');
     }
@@ -52,13 +53,13 @@ const createOrUpdateIdentifier = (config: Config) => async ({
 
     // Determines if the identifier was created or found.
     // Docs: https://docs.mongodb.com/manual/reference/command/getLastError/#getLastError.n
-    const wasCreated = opResult.lastErrorObject?.upserted !== undefined;
+    const wasCreated = opResult?.lastErrorObject?.upserted !== undefined;
 
     return { identifier, wasCreated };
   } catch (err) {
     // if we catch a duplicate error, we can be sure to find it next time round
     /* istanbul ignore if */
-    if (err instanceof MongoError && err.code === DUPLICATE_KEY) {
+    if (err instanceof MongoServerError && err.code === DUPLICATE_KEY) {
       return await createOrUpdateIdentifier(config)({ filter, update, upsert });
     }
 

@@ -32,7 +32,7 @@ import updatePersona from './updatePersona';
 
 export default (config: Config): Repo => {
   return {
-    ...commonMongoRepo(config),
+    ...commonMongoRepo(config as any),
     clearRepo: clearRepo(config),
     createIdentifier: createIdentifier(config),
     createPersona: createPersona(config),

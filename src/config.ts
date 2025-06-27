@@ -39,10 +39,9 @@ export default {
     options: {
       acceptableLatencyMS: getMongoNumberOption(process.env.MONGO_ACCEPTABLE_LATENCY_MS),
       appname: process.env.MONGO_APP_NAME, // Not supported below Mongo 3.4.
-      bufferMaxEntries: getMongoNumberOption(process.env.MONGO_BUFFER_MAX_ENTRIES),
       connectTimeoutMS: getMongoNumberOption(process.env.MONGO_CONNECT_TIMEOUT_MS),
       maxStalenessSeconds: getMongoNumberOption(process.env.MONGO_MAX_STALENESS_SECONDS),
-      poolSize: getMongoNumberOption(process.env.MONGO_POOL_SIZE),
+      maxPoolSize: getMongoNumberOption(process.env.MONGO_POOL_SIZE),
       readConcern: {
         level: getStringOption(process.env.MONGO_READ_CONCERN, 'local'),
       },
